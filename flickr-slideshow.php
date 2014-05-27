@@ -1,11 +1,11 @@
 <?php  
 /* 
 Plugin Name: Mobile-Friendly Flickr Slideshow 
-Plugin URI: http://www.wordpress.org/
+Plugin URI: http://wordpress.org/plugins/mobile-friendly-flickr-slideshow/
 Description: Use the <code>[fshow]</code> shorttag with <code>username=</code>, <code>photosetid=</code>, and <code>thumburl=</code> parameters to display a mobile-friendly Flickr slideshow
 Author: Robert Peake
 Version: 0.1 
-Author URI: http://www.robertpeake.com/ 
+Author URI: http://www.msia.org/ 
 Text Domain: flickr_slideshow
 Domain Path: /languages/
 */ 
