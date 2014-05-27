@@ -28,7 +28,7 @@ function fshow_func( $atts ) {
         $shareCode = $slideshow.' '.$gallery;
         $objectCode = '<div id="'.$photosetid.'" class="slideshowWrapper"><object width="100%" height="480"> <param name="flashvars" value="offsite=true&lang=en-us&page_show_url=%2Fphotos%2F'.$username.'%2Fsets%2F'.$photosetid.'%2Fshow%2F&page_show_back_url=%2Fphotos%2F'.$username.'%2Fsets%2F'.$photosetid.'%2F&set_id='.$photosetid.'&jump_to="></param> <param name="movie" value="http://www.flickr.com/apps/slideshow/show.swf?v=109615"></param> <param name="allowFullScreen" value="true"></param><embed type="application/x-shockwave-flash" src="http://www.flickr.com/apps/slideshow/show.swf?v=109615" allowFullScreen="true" flashvars="offsite=true&lang=en-us&page_show_url=%2Fphotos%2F'.$username.'%2Fsets%2F'.$photosetid.'%2Fshow%2F&page_show_back_url=%2Fphotos%2F'.$username.'%2Fsets%2F'.$photosetid.'%2F&set_id='.$photosetid.'&jump_to=" width="100%" height="480"></embed></object><div class="shareLinks" style="width: 100%">'.$gallery.'</div></div>';
 	$simpleLink = sprintf('<a href="http://www.flickr.com/photos/%s/sets/%s/show/" class="mobileSlideshowSimpleLink" target="_blank">'.__('Click to Play','flickr_slideshow').'</a>',$username, $photosetid, $thumburl);
-        $return = '<script src="'.plugins_url('flickr-slideshow/swfobject.js', dirname(__FILE__)).'" type="text/javascript"></script>'."\n";
+        $return = '<script src="'.plugins_url('mobile-friendly-flickr-slideshow/swfobject.js', dirname(__FILE__)).'" type="text/javascript"></script>'."\n";
         $return .= '<script type="text/javascript">'."\n";
         $return .= 'if(swfobject.hasFlashPlayerVersion("1")) {'."\n";
         $return .= '    document.write(\'';
@@ -47,7 +47,7 @@ function fshow_func( $atts ) {
 }
 
 function fshow_func_head() {
-    wp_register_style('fshow_css', plugins_url('flickr-slideshow/style.css', dirname(__FILE__)));
+    wp_register_style('fshow_css', plugins_url('mobile-friendly-flickr-slideshow/style.css', dirname(__FILE__)));
     wp_enqueue_style('fshow_css');
 }
 
@@ -56,7 +56,7 @@ function fshow_load_textdomain() {
 }
 
 function fshow_register_menu_page(){
-    add_options_page( __('Flickr Slideshow Options','flickr_slideshow'), __('Flickr Slideshow','flickr_slideshow'), 'manage_options', 'flickr-slideshow/admin.php');
+    add_options_page( __('Flickr Slideshow Options','flickr_slideshow'), __('Flickr Slideshow','flickr_slideshow'), 'manage_options', plugins_url('mobile-friendly-flickr-slideshow/admin.php', dirname(__FILE__)));
 }
 
 function fshow_register_settings() {
