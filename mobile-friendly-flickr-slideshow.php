@@ -56,7 +56,7 @@ function fshow_load_textdomain() {
 }
 
 function fshow_register_menu_page(){
-    add_options_page( __('Flickr Slideshow Options','flickr_slideshow'), __('Flickr Slideshow','flickr_slideshow'), 'manage_options', plugins_url('mobile-friendly-flickr-slideshow/admin.php', dirname(__FILE__)));
+    add_options_page( __('Flickr Slideshow Options','flickr_slideshow'), __('Flickr Slideshow','flickr_slideshow'), 'manage_options', plugin_dir_path(  __FILE__ ).'admin.php');
 }
 
 function fshow_register_settings() {
