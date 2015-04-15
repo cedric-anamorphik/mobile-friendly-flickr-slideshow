@@ -1,5 +1,5 @@
 === Plugin Name ===
-Contributors: robert@msia.org
+Contributors: robertpeake, robert@msia.org
 Tags: flickr, slideshow, mobile
 Requires at least: 3.0.0
 Tested up to: 4.0
