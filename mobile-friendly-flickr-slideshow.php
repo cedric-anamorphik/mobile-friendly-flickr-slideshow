@@ -4,7 +4,7 @@ Plugin Name: Responsive Flickr Slideshow
 Plugin URI: http://wordpress.org/plugins/mobile-friendly-flickr-slideshow/
 Description: Use the <code>[fshow]</code> shorttag with <code>username=</code>, <code>photosetid=</code>, and <code>thumburl=</code> parameters to display a mobile-friendly Flickr slideshow
 Author: Robert Peake
-Version: 2.0.2
+Version: 2.1
 Author URI: http://www.msia.org/ 
 Text Domain: flickr_slideshow
 Domain Path: /languages/

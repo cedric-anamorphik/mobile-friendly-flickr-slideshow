@@ -71,13 +71,13 @@ if ( ! defined( 'WPINC' ) ) {
 <script src="<?php echo plugin_dir_url( __FILE__ ) . 'js/screenfull.min.js' ?>"></script>
 </head>
 <body>
-<a href="#" id="fullscreen_link" style="display: none;">
+<a id="fullscreen_link" style="display: none;">
     <small><i class="fi-arrows-out"></i> <?php _e('Fullscreen','flickr_slideshow'); ?></small>
 </a>
 <div class="orbit-container">
     <ul data-orbit>
       <?php foreach($this->get_photos() as $photo): ?>
-        <li><img src="<?php echo $photo['url']; ?>" data-page="<?php echo $photo['page_url']; ?>"></li>
+        <li><img src="" data-src="<?php echo $photo['url']; ?>" data-page="<?php echo $photo['page_url']; ?>"></li>
       <?php endforeach; ?>
     </ul>
 </div>
@@ -98,14 +98,23 @@ if ( ! defined( 'WPINC' ) ) {
 </script>
 <script>
 jQuery( document ).ready( function() {
+    lazyload = function(obj_li) {
+        if (!jQuery(obj_li).find('img').first().attr('src')) {
+            var url = jQuery(obj_li).find('img').first().attr('data-src');
+            jQuery(obj_li).find('img').first().attr('src', url );
+        }
+        if (jQuery(obj_li).next()) {
+            window.setTimeout( function() {
+                lazyload( jQuery(obj_li).next() );
+            }, 1000);
+        }
+    }
     function fshow_load_navigation( orbit ) {
         jQuery('#gallery_link').attr('href','<?php echo $this->get_gallery_url(); ?>').fadeIn();
         jQuery('#fullscreen_link').on('click', function(e) {
-            e.preventDefault();
             if(screenfull.enabled) {
                 screenfull.request();
             }
-            return false;
         }).fadeIn();
         fshow_update_image_link( orbit );
     }
@@ -113,23 +122,26 @@ jQuery( document ).ready( function() {
         url = jQuery( orbit ).find('li.active img').attr('data-page');
         jQuery('#photo_link').attr('href',url).fadeIn();
     }
-    jQuery('.orbit-container').foundation('orbit', {
-        animation: 'fade',
-        timer_speed: 6000,
-        animation_speed: 500,
-        stack_on_small: false,
-        navigation_arrows: true,
-        slide_number: false,
-        pause_on_hover: false,
-        resume_on_mouseout: false,
-        bullets: false,
-        timer: true,
-        variable_height: false
-    }).on("ready.fndtn.orbit", function(event) {
-        fshow_load_navigation(this);
-    }).on("after-slide-change.fndtn.orbit", function(event) {
-        fshow_update_image_link(this);
-    });
+    lazyload(
+        jQuery('.orbit-container').foundation('orbit', {
+            animation: 'fade',
+            timer_speed: 6000,
+            animation_speed: 300,
+            stack_on_small: false,
+            navigation_arrows: true,
+            slide_number: false,
+            pause_on_hover: false,
+            resume_on_mouseout: false,
+            bullets: false,
+            timer: true,
+            variable_height: false
+        }).on("before-slide-change.fndtn.orbit", function(event) {
+            lazyload(jQuery(this).find('li.active').next());
+        }).on("after-slide-change.fndtn.orbit", function(event) {
+            fshow_update_image_link(this);
+        }).find('li.active').first()
+    );
+    fshow_load_navigation( jQuery('.orbit-container') );
 });
 </script>
 <?php wp_footer(); ?>
