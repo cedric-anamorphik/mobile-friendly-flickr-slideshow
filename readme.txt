@@ -3,7 +3,7 @@ Contributors: robertpeake, robert@msia.org, robert.peake
 Tags: flickr, slideshow, mobile, responsive
 Requires at least: 3.0.0
 Tested up to: 4.2.2
-Stable tag: 2.1.2
+Stable tag: 2.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,10 @@ As part of any gallery URL, you should see your username and photosetid. To get 
 2. HTML5 display for non-Flash (e.g. mobile) devices, featuring play button superimposed on thumbnail, play button on bottom navigation, and gallery/share button on bottom navigation. Designed large for tapping.
 
 == Changelog ==
+
+= 2.1.3 =
+
+ * Show/hide navigation elements when mouse enters/leaves frame
 
 = 2.1.2 =
 

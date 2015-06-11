@@ -91,16 +91,16 @@ if ( ! defined( 'WPINC' ) ) {
       <?php endforeach; ?>
     </ul>
 </div>
-<div class="bottom-bar">
+<div class="bottom-bar" style="display: none;">
     <div class="left">
-        <a id="gallery_link" target="_blank" style="display: none;">
+        <a id="gallery_link" target="_blank">
             <small><?php _e('View Gallery','flickr_slideshow'); ?></small>
         </a>
     </div>
     <span class="center">
     </span>
     <div class="right">
-        <a id="photo_link" target="_blank" style="display: none;">
+        <a id="photo_link" target="_blank">
             <small><?php _e('View Photo','flickr_slideshow'); ?></small>
         </a>
     </div>
@@ -124,17 +124,17 @@ jQuery( document ).ready( function() {
         }
     }
     function fshow_load_navigation( orbit ) {
-        jQuery('#gallery_link').attr('href','<?php echo $this->get_gallery_url(); ?>').fadeIn();
+        jQuery('#gallery_link').attr('href','<?php echo $this->get_gallery_url(); ?>');
         fshow_update_image_link( orbit );
         if (screenfull && screenfull.enabled) {
             jQuery('#fullscreen_link').on('click', function(e) {
                 screenfull.request();
-            }).fadeIn();
+            });
         }
     }
     function fshow_update_image_link( orbit ) {
         url = jQuery( orbit ).find('li.active img').attr('data-page');
-        jQuery('#photo_link').attr('href',url).fadeIn();
+        jQuery('#photo_link').attr('href',url);
     }
     var orbit = jQuery('.orbit-container').foundation('orbit', {
             animation: 'fade',
@@ -154,6 +154,26 @@ jQuery( document ).ready( function() {
     });
     lazyload( orbit.find('li.active').first() );
     fshow_load_navigation( orbit );
+    jQuery(document).on('mouseenter',function(e) {
+        fsl = jQuery('#fullscreen_link');
+        if (!fsl.is(':visible') && screenfull && screenfull.enabled) {
+            fsl.fadeIn();
+        }
+        bb = jQuery('.bottom-bar');
+        if (!bb.is(':visible')) {
+            bb.fadeIn();
+        }
+    });
+    jQuery(document).on('mouseleave',function(e) {
+        fsl = jQuery('#fullscreen_link');
+        if (fsl.is(':visible')) {
+            fsl.fadeOut();
+        }
+        bb = jQuery('.bottom-bar');
+        if (bb.is(':visible')) {
+            bb.fadeOut();
+        }
+    });
 });
 </script>
 <?php if(get_option('fshow_performance_mode') != "1"): ?>
