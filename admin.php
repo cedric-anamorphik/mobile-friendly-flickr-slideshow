@@ -42,6 +42,12 @@ echo settings_fields( 'flickr_slideshow' );
             <th scope="row"><label for="id_fshow_default_height"><?php _e('Default Slideshow Height','flickr_slideshow'); ?>:</label></th>
 	    <td><input type="text" id="id_fshow_default_height" name="fshow_default_height" value="<?php echo get_option('fshow_default_height'); ?>" />px</td>
 	</tr>
+    <tr valign="top">
+            <th scope="row"><label for="id_fshow_performance_mode"><?php _e('Performance Mode','flickr_slideshow'); ?>:</label></th>
+	    <td><input type="checkbox" id="id_fshow_performance_mode" name="fshow_performance_mode" value="1" <?php if ( get_option('fshow_performance_mode') == "1" ) { echo 'checked="checked"'; } ?> />
+            <?php _e('(Do not include Wordpress code slideshow box)','flickr_slideshow'); ?> 
+        </td>
+    </tr>
     </table>
     <?php submit_button(); ?>
 </form>

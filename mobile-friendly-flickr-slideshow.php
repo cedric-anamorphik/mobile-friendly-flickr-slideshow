@@ -195,6 +195,7 @@ class FlickrSlideshow {
         add_option('fshow_default_thumburl', includes_url('images/wlw/wp-watermark.png'));
         add_option('fshow_default_width', '640');
         add_option('fshow_default_height', '400');
+        add_option('fshow_performance_mode', 1);
         register_setting( 'flickr_slideshow', 'fshow_flickr_api_key', array($this, 'string_filter' ));
         register_setting( 'flickr_slideshow', 'fshow_default_username', array($this,'string_filter' )); 
         register_setting( 'flickr_slideshow', 'fshow_default_user_id', array($this,'string_filter' )); 
@@ -202,6 +203,7 @@ class FlickrSlideshow {
         register_setting( 'flickr_slideshow', 'fshow_default_thumburl', array($this,'url_filter' )); 
         register_setting( 'flickr_slideshow', 'fshow_default_width', 'intval' ); 
         register_setting( 'flickr_slideshow', 'fshow_default_height', 'intval' ); 
+        register_setting( 'flickr_slideshow', 'fshow_performance_mode', 'intval' ); 
     }
 
     public function string_filter( $string ) {

@@ -39,6 +39,10 @@ As part of any gallery URL, you should see your username and photosetid. To get 
 
 == Changelog ==
 
+= 2.1.2 =
+
+ * Added "Performance mode" by default, which does not include css/js from wordpress in the slideshow frame
+
 = 2.1.1 =
 
  * Improvements to full-screen mode and transitions

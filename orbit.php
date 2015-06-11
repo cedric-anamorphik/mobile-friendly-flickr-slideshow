@@ -70,7 +70,11 @@ if ( ! defined( 'WPINC' ) ) {
     padding: 0.5em;
 }
 </style>
-<?php wp_head(); ?>
+<?php if (get_option('fshow_performance_mode') != "1"): ?>
+    <?php wp_head(); ?>
+<?php else: ?>
+    <script src="<?php echo plugin_dir_url( __FILE__ ) . 'js/jquery.min.js'; ?>"></script>
+<?php endif; ?>
 <script src="<?php echo plugin_dir_url( __FILE__ ) . 'js/modernizr.min.js'; ?>"></script>
 <script src="<?php echo plugin_dir_url( __FILE__ ) . 'js/foundation.min.js'; ?>"></script>
 <script src="<?php echo plugin_dir_url( __FILE__ ) . 'js/foundation.orbit.min.js'; ?>"></script>
@@ -145,16 +149,15 @@ jQuery( document ).ready( function() {
             timer: true,
             variable_height: false
     });
-    orbit .on("before-slide-change.fndtn.orbit", function(event) {
-        lazyload(jQuery(this).find('li.active').next());
-    });
-    orbit .on("after-slide-change.fndtn.orbit", function(event) {
+    orbit.on("after-slide-change.fndtn.orbit", function(event) {
         fshow_update_image_link(this);
     });
     lazyload( orbit.find('li.active').first() );
     fshow_load_navigation( orbit );
 });
 </script>
-<?php wp_footer(); ?>
+<?php if(get_option('fshow_performance_mode') != "1"): ?>
+    <?php wp_footer(); ?>
+<?php endif; ?>
 </body>
 </html>
