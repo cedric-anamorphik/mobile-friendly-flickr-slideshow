@@ -29,9 +29,15 @@ if ( ! defined( 'WPINC' ) ) {
   vertical-align: middle;
 }
 .orbit-slides-container li img {
-  margin: 0 auto;
   max-width: 100%;
   max-height: 100%;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  overflow: auto;
+  position: fixed;
+  right: 0;
+  top: 0;
   vertical-align: middle;
 }
 .bottom-bar {
@@ -77,7 +83,7 @@ if ( ! defined( 'WPINC' ) ) {
 <div class="orbit-container">
     <ul data-orbit>
       <?php foreach($this->get_photos() as $photo): ?>
-        <li><img src="" data-src="<?php echo $photo['url']; ?>" data-page="<?php echo $photo['page_url']; ?>"></li>
+        <li><img src="<?php get_site_url() . ''; ?>" data-src="<?php echo $photo['url']; ?>" data-page="<?php echo $photo['page_url']; ?>"></li>
       <?php endforeach; ?>
     </ul>
 </div>
@@ -98,10 +104,14 @@ if ( ! defined( 'WPINC' ) ) {
 </script>
 <script>
 jQuery( document ).ready( function() {
+    var zindex = -1;
     lazyload = function(obj_li) {
         if (!jQuery(obj_li).find('img').first().attr('src')) {
             var url = jQuery(obj_li).find('img').first().attr('data-src');
-            jQuery(obj_li).find('img').first().attr('src', url );
+            var img = jQuery(obj_li).find('img').first();
+            img.css('z-index',zindex);
+            img.attr('src', url );
+            zindex--;
         }
         if (jQuery(obj_li).next()) {
             window.setTimeout( function() {
@@ -111,22 +121,21 @@ jQuery( document ).ready( function() {
     }
     function fshow_load_navigation( orbit ) {
         jQuery('#gallery_link').attr('href','<?php echo $this->get_gallery_url(); ?>').fadeIn();
-        jQuery('#fullscreen_link').on('click', function(e) {
-            if(screenfull.enabled) {
-                screenfull.request();
-            }
-        }).fadeIn();
         fshow_update_image_link( orbit );
+        if (screenfull && screenfull.enabled) {
+            jQuery('#fullscreen_link').on('click', function(e) {
+                screenfull.request();
+            }).fadeIn();
+        }
     }
     function fshow_update_image_link( orbit ) {
         url = jQuery( orbit ).find('li.active img').attr('data-page');
         jQuery('#photo_link').attr('href',url).fadeIn();
     }
-    lazyload(
-        jQuery('.orbit-container').foundation('orbit', {
+    var orbit = jQuery('.orbit-container').foundation('orbit', {
             animation: 'fade',
-            timer_speed: 6000,
-            animation_speed: 300,
+            timer_speed: 4000,
+            animation_speed: 200,
             stack_on_small: false,
             navigation_arrows: true,
             slide_number: false,
@@ -135,13 +144,15 @@ jQuery( document ).ready( function() {
             bullets: false,
             timer: true,
             variable_height: false
-        }).on("before-slide-change.fndtn.orbit", function(event) {
-            lazyload(jQuery(this).find('li.active').next());
-        }).on("after-slide-change.fndtn.orbit", function(event) {
-            fshow_update_image_link(this);
-        }).find('li.active').first()
-    );
-    fshow_load_navigation( jQuery('.orbit-container') );
+    });
+    orbit .on("before-slide-change.fndtn.orbit", function(event) {
+        lazyload(jQuery(this).find('li.active').next());
+    });
+    orbit .on("after-slide-change.fndtn.orbit", function(event) {
+        fshow_update_image_link(this);
+    });
+    lazyload( orbit.find('li.active').first() );
+    fshow_load_navigation( orbit );
 });
 </script>
 <?php wp_footer(); ?>
