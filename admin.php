@@ -6,7 +6,7 @@ if (!is_admin()) {
 <h2><?php _e('Flickr Slideshow','flickr_slideshow'); ?></h2>
 <?php if (strlen(get_option('fshow_flickr_api_key')) == 0): ?>
 <div class="notice">
-<?php sprintf(_e('You must obtain a <a href="%s" target="_blank">Flickr API Key</a> to use the new version of Flickr Slideshow correctly.','flickr_slideshow'),'https://www.flickr.com/services/apps/create/apply'); ?>
+<?php echo sprintf(__('You must obtain a <a href="%s" target="_blank">Flickr API Key</a> to use the new version of Flickr Slideshow correctly.','flickr_slideshow'),'https://www.flickr.com/services/apps/create/apply'); ?>
 </div>
 <?php endif; ?>
 <form method="post" action="options.php">
