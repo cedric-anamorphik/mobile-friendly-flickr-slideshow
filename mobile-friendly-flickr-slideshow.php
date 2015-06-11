@@ -4,7 +4,7 @@ Plugin Name: Responsive Flickr Slideshow
 Plugin URI: http://wordpress.org/plugins/mobile-friendly-flickr-slideshow/
 Description: Use the <code>[fshow]</code> shorttag with <code>username=</code>, <code>photosetid=</code>, and <code>thumburl=</code> parameters to display a mobile-friendly Flickr slideshow
 Author: Robert Peake
-Version: 2.0.1
+Version: 2.0.2
 Author URI: http://www.msia.org/ 
 Text Domain: flickr_slideshow
 Domain Path: /languages/
@@ -130,9 +130,9 @@ class FlickrSlideshow {
         }
         $user_id = $this->get_user_id($atts['username']);
         $galleryURL = 'http://www.flickr.com/photos/'.$atts['username'].'/sets/'.$atts['photosetid'].'/';
-        $simpleLink = sprintf('<a href="http://www.flickr.com/photos/%s/sets/%s/" target="_blank">'.__('Click to View','flickr_slideshow').'</a>',$username, $photosetid, $thumburl);
+        $simpleLink = sprintf('<a href="http://www.flickr.com/photos/%s/sets/%s/" target="_blank">'.__('Click to View','flickr_slideshow').'</a>',$atts['username'], $atts['photosetid'], $atts['thumburl']);
         $return = sprintf('<div style="max-width: %spx; height: %spx">',$atts['width'],$atts['height'])."\n";
-        $return .= '<iframe src="'.$this->get_url($user_id,$atts['photosetid'],$atts['username']).'" style="width: 100%; height: '.$atts['height'].'px">'."\n";
+        $return .= '<iframe src="'.$this->get_url($user_id,$atts['photosetid'],$atts['username']).'" style="width: 100%; height: '.$atts['height'].'px" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true">'."\n";
         $return .= '</iframe>'."\n";
         $return .= '<noframes>'."\n";
         $return .= $simpleLink;

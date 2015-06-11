@@ -11,7 +11,11 @@ class SimpleFlickrPhotoApi {
         $args = array(  'method' => 'flickr.people.findByUsername',
                         'username' => $username );
         $result = $this->call($args);
-        return $result->user->id;
+        if (is_object($result) && isset($result->user)) {
+            return $result->user->id;
+        } else {
+            return false;
+        }
     }
 
     public function get_photos( $photoset_id, $user_id = false ) {
@@ -21,7 +25,11 @@ class SimpleFlickrPhotoApi {
             $args['user_id'] = $user_id;
         }
         $result = $this->call($args);
-        return $result->photoset->photo;
+        if (is_object($result) && isset($result->photoset)) {
+            return $result->photoset->photo;
+        } else {
+            return false;
+        }
     }
 
     private function call($args) {

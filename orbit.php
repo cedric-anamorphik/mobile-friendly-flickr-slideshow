@@ -68,10 +68,10 @@ if ( ! defined( 'WPINC' ) ) {
 <script src="<?php echo plugin_dir_url( __FILE__ ) . 'js/modernizr.min.js'; ?>"></script>
 <script src="<?php echo plugin_dir_url( __FILE__ ) . 'js/foundation.min.js'; ?>"></script>
 <script src="<?php echo plugin_dir_url( __FILE__ ) . 'js/foundation.orbit.min.js'; ?>"></script>
-<script src="<?php echo plugin_dir_url( __FILE__ ) . 'js/screenful.min.js' ?>"></script>
+<script src="<?php echo plugin_dir_url( __FILE__ ) . 'js/screenfull.min.js' ?>"></script>
 </head>
 <body>
-<a id="fullscreen_link" style="display: none;">
+<a href="#" id="fullscreen_link" style="display: none;">
     <small><i class="fi-arrows-out"></i> <?php _e('Fullscreen','flickr_slideshow'); ?></small>
 </a>
 <div class="orbit-container">
@@ -100,10 +100,12 @@ if ( ! defined( 'WPINC' ) ) {
 jQuery( document ).ready( function() {
     function fshow_load_navigation( orbit ) {
         jQuery('#gallery_link').attr('href','<?php echo $this->get_gallery_url(); ?>').fadeIn();
-        jQuery('#fullscreen_link').on('click', function() {
+        jQuery('#fullscreen_link').on('click', function(e) {
+            e.preventDefault();
             if(screenfull.enabled) {
                 screenfull.request();
             }
+            return false;
         }).fadeIn();
         fshow_update_image_link( orbit );
     }
