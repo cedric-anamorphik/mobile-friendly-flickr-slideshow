@@ -34,8 +34,8 @@ As part of any gallery URL, you should see your username and photosetid. To get 
 
 == Screenshots ==
 
-1. Default Flash object embed slideshow, displayed to all Flash-enabled devices (e.g. browsers)
-2. HTML5 display for non-Flash (e.g. mobile) devices, featuring play button superimposed on thumbnail, play button on bottom navigation, and gallery/share button on bottom navigation. Designed large for tapping.
+1. Default responsive slideshow frame
+2. Settings page
 
 == Changelog ==
 
