@@ -7,30 +7,43 @@ Stable tag: 2.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Embeds Flash object slideshow for browsers and creates display of thumbnail with play button and links to gallery for non-Flash (e.g. mobile) devices.
+Embeds a respnsive slideshow of Flickr images from any album or photoset
 
 == Description ==
 
-Embeds Flash object slideshow for browsers and creates display of thumbnail with play button and links to gallery for non-Flash (e.g. mobile) devices. Depends on Flickr for functionality, and embeds remote Flickr objects.
+Embeds a respnsive slideshow of Flickr images from any album or photoset
 
-Shortcodes are of the format: `[fshow username=erl_bear photosetid=72157627847553181 thumburl=http://farm7.staticflickr.com/6179/6278299931_fccc887e96_z_d.jpg]`
+Shortcodes are of the format: `[fshow photosetid=72157627847553181]`
 
-The parameters username, photosetid, and thumburl can have values set using the plugin options page that will then be used by default whenever they are omitted from the shortcode.
+The default parameters for api key, username, and photosetid can have values set using the plugin options page that will then be used by default whenever they are omitted from the shortcode.
 
 == Installation ==
 
-Install as normal for WordPress plugins.
+Install as normal for WordPress plugins. Obtain an API key from Flickr to enable responsive mode.
 
-Shortcodes are of the format: [fshow username=erl_bear photosetid=72157627847553181 thumburl=http://farm7.staticflickr.com/6179/6278299931_fccc887e96_z_d.jpg]
+Shortcodes are of the format: [fshow photosetid=72157627847553181]
 
 == Frequently Asked Questions ==
 
 = How do I use the plugin? =
 
-Shortcodes are of the format: <code>[fshow username=erl_bear photosetid=72157627847553181 thumburl=http://farm7.staticflickr.com/6179/6278299931_fccc887e96_z_d.jpg]</code>
+You must first <a href="https://www.flickr.com/services/apps/create/apply">obtain an API key from Flickr</a>.
+
+= How do I embed a slideshow? =
+
+Shortcodes are of the format: <code>[fshow photosetid=72157627847553181]</code>
+
 = Where do I find these variables? =
 
-As part of any gallery URL, you should see your username and photosetid. To get the thumburl, choose "View Sizes" and select the 640x480 image. Right-click and choose "Copy Image Location" (or similar) to get the URL.
+As part of any gallery URL, you should see your username and photosetid.
+
+= Are you affiliated with Flickr or Yahoo! in any way? =
+
+This plugin is not affiliated with or endorsed by Flickr or its parent company, Yahoo! Inc. in any way. Flickr is a registered trademark of Yahoo!, Inc.  By using this plugin you agree  the <a href="https://www.flickr.com/services/api/tos/">terms of service</a> set out by Flickr. 
+
+= Do you offer any warranty? = 
+
+The author provides no warranty as to the suitability to any purpose of this software. You agree to use it entirely at your own risk.
 
 == Screenshots ==
 
