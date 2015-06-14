@@ -3,7 +3,7 @@ Contributors: robertpeake, robert@msia.org, robert.peake
 Tags: flickr, slideshow, mobile, responsive
 Requires at least: 3.0.0
 Tested up to: 4.2.2
-Stable tag: 2.2
+Stable tag: 2.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,10 @@ The author provides no warranty as to the suitability to any purpose of this sof
 2. Settings page
 
 == Changelog ==
+
+= 2.2.1 =
+
+ * Increased link text size
 
 = 2.2 =
 

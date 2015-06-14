@@ -84,10 +84,10 @@ if ( ! defined( 'WPINC' ) ) {
 </head>
 <body>
 <a id="back_link" style="display: none;">
-    <small><i class="fi-arrow-left"></i> <?php _e('Back','flickr_slideshow'); ?></small>
+    <i class="fi-arrow-left"></i> <?php _e('Back','flickr_slideshow'); ?>
 </a>
 <a id="fullscreen_link" style="display: none;">
-    <small><i class="fi-arrows-out"></i> <?php _e('Fullscreen','flickr_slideshow'); ?></small>
+    <i class="fi-arrows-out"></i> <?php _e('Fullscreen','flickr_slideshow'); ?>
 </a>
 <div class="orbit-container">
     <ul data-orbit>
@@ -99,14 +99,14 @@ if ( ! defined( 'WPINC' ) ) {
 <div class="bottom-bar" style="display: none;">
     <div class="left">
         <a id="gallery_link" target="_blank">
-            <small><?php _e('View Gallery','flickr_slideshow'); ?></small>
+            <?php _e('View Gallery','flickr_slideshow'); ?>
         </a>
     </div>
     <span class="center">
     </span>
     <div class="right">
         <a id="photo_link" target="_blank">
-            <small><?php _e('View Photo','flickr_slideshow'); ?></small>
+            <?php _e('View Photo','flickr_slideshow'); ?>
         </a>
     </div>
 </div>
