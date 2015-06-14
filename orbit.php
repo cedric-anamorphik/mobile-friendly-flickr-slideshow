@@ -5,6 +5,8 @@ if ( ! defined( 'WPINC' ) ) {
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet prefetch" href="<?php echo plugin_dir_url( __FILE__ ) . 'css/foundation.css'; ?>">
 <link rel="stylesheet" href="<?php echo plugin_dir_url( __FILE__ ) . 'css/foundation-icons.css'; ?>">
 <style>
@@ -57,10 +59,10 @@ if ( ! defined( 'WPINC' ) ) {
 .bottom-bar .right {
     margin-right: 1em;
 }
-.bottom-bar, .bottom-bar .left, .bottom-bar .right, .bottom-bar .center, .bottom-bar .left a, .bottom-bar .right a, .bottom-bar .center a, a#fullscreen_link {
+.bottom-bar, .bottom-bar .left, .bottom-bar .right, .bottom-bar .center, .bottom-bar .left a, .bottom-bar .right a, .bottom-bar .center a, a#fullscreen_link, a#back_link {
     color: #fff;
 }
-#fullscreen_link {
+#fullscreen_link, #back_link {
     display: block;
     position: absolute;
     top: 0.5em;
@@ -81,6 +83,9 @@ if ( ! defined( 'WPINC' ) ) {
 <script src="<?php echo plugin_dir_url( __FILE__ ) . 'js/screenfull.min.js' ?>"></script>
 </head>
 <body>
+<a id="back_link" style="display: none;">
+    <small><i class="fi-arrow-left"></i> <?php _e('Back','flickr_slideshow'); ?></small>
+</a>
 <a id="fullscreen_link" style="display: none;">
     <small><i class="fi-arrows-out"></i> <?php _e('Fullscreen','flickr_slideshow'); ?></small>
 </a>
@@ -120,7 +125,7 @@ jQuery( document ).ready( function() {
         if (jQuery(obj_li).next()) {
             window.setTimeout( function() {
                 lazyload( jQuery(obj_li).next() );
-            }, 1000);
+            }, 3000);
         }
     }
     function fshow_load_navigation( orbit ) {
@@ -130,6 +135,20 @@ jQuery( document ).ready( function() {
             jQuery('#fullscreen_link').on('click', function(e) {
                 screenfull.request();
             });
+        } else if(window.parent) {
+            jQuery('#fullscreen_link').on('click', function(e) {
+                window.parent.location = window.location;
+            });
+        }
+        if (Modernizr.touch) {
+            if (window.parent.location != window.location) {
+                jQuery('#fullscreen_link').fadeIn();
+            } else {
+                jQuery('#back_link').on('click',function(e) {
+                    window.history.go(-1);
+                }).fadeIn();
+            }
+            jQuery('.bottom-bar').fadeIn();
         }
     }
     function fshow_update_image_link( orbit ) {
@@ -156,7 +175,7 @@ jQuery( document ).ready( function() {
     fshow_load_navigation( orbit );
     jQuery(document).on('mouseenter',function(e) {
         fsl = jQuery('#fullscreen_link');
-        if (!fsl.is(':visible') && screenfull && screenfull.enabled) {
+        if (!fsl.is(':visible') && ((screenfull && screenfull.enabled) || window.parent.location != window.location)) {
             fsl.fadeIn();
         }
         bb = jQuery('.bottom-bar');
