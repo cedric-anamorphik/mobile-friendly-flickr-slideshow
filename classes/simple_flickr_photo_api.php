@@ -1,21 +1,78 @@
 <?php
 class SimpleFlickrPhotoApi {
-    var $base_url = 'https://api.flickr.com/services/rest/';
-    var $api_key;
+    private $base_url = 'https://api.flickr.com/services/rest/';
+    private $api_key;
+    private $transient_cache_time;
+    private $cache_count;
+    private $users;
+    private $photosets;
 
-    public function __construct() {
-        $this->api_key = get_option('fshow_flickr_api_key');
+    public function __construct( $api_key, $cache_time = 3600 ) {
+        if ($cache_time && $cache_time > 0) { //indefinite cache time not allowed
+            $this->cache_time( $cache_time );
+        } else {
+            $this->cache_time( 3600 );
+        }
+        $this->cache_count = array('hit' => 0, 'miss' => 0);
+        $this->api_key = $api_key; 
+        $this->users = get_transient('fshow_users') ? get_transient('fshow_users') : array();
+        $this->photosets = get_transient('fshow_photosets') ? get_transient('fshow_photosets') : array();
+    }
+
+    public function cache_time( $secs = false ) {
+        if (is_numeric($secs) && $secs > 0) {
+            $this->transient_cache_time = $secs;
+        } else {
+            return $this->transient_cache_time;
+        }
     }
 
     public function get_user_id_from_username($username) {
-        $args = array(  'method' => 'flickr.people.findByUsername',
-                        'username' => $username );
-        $result = $this->call($args);
-        if (is_object($result) && isset($result->user)) {
-            return $result->user->id;
+        if (isset($this->users[$username])) {
+            return $this->users[$username];
         } else {
-            return false;
+            $args = array(  'method' => 'flickr.people.findByUsername',
+                            'username' => $username );
+            $result = $this->call($args);
+            if (is_object($result) && isset($result->user)) {
+                $user_id = $result->user->id;
+                $this->users[$username] = $user_id;
+                set_transient('fshow_users', $this->users);
+            } else {
+                $user_id = false;
+            }
+            return $user_id;
         }
+    }
+
+    public function get_user_id_from_photoset( $photoset_id ) {
+        if (isset($this->photosets[$photoset_id])) {
+            return $this->photosets[$photoset_id];
+        } else {
+            $args = array(  'method' => 'flickr.photosets.getInfo',
+                            'photoset_id' => $photoset_id );
+            $result = $this->call($args);
+            if (is_object($result) && isset($result->photoset)) {
+                $user_id = $result->photoset->owner;
+                $this->photosets[$photoset_id] = $user_id;
+                set_transient('fshow_photosets', $this->photosets);
+            } else {
+                $user_id = false;
+            }
+            return $user_id;
+        }
+    }
+
+    public function get_url_parts_from_short_url( $short_url ) {
+        $return = array();
+        $pattern = '#http[s+]://flic.kr/s/([\S]+)#';
+        $matches = array();
+        preg_match($pattern, $short_url, $matches);
+        if (isset($matches[1])) {
+            $return['photosetid'] = SimpleFlickrPhotoApi::base58_decode($matches[1]);
+            $return['user_id'] = $this->get_user_id_from_photoset($return['photosetid']);
+        }
+        return $return;
     }
 
     public function get_photos( $photoset_id, $user_id = false ) {
@@ -32,17 +89,33 @@ class SimpleFlickrPhotoApi {
         }
     }
 
+    public function get_short_url( $photosetid ) {
+        return sprintf('https://flic.kr/s/%s', SimpleFlickrPhotoApi::base58_encode($photosetid));
+    }
+    
+    public function get_cache_stats() {
+        return $this->cache_count;
+    }
+
     private function call($args) {
         $args = array_merge($args, array( 'api_key' => $this->api_key,
                                           'format' => 'json',
                                           'nojsoncallback' => '1'));
-        return $this->get_json($args);
+        $obj = $this->get_json($args);
+        if ($obj->cached) {
+            $this->cache_count['hit']++;
+        } else {
+            $this->cache_count['miss']++;
+        }
+        return $obj;
     }
 
     private function get_json($args) {
         $url = $this->base_url . '?' . http_build_query($args);
         $result = $this->get($url);
-        return json_decode($result['body']);
+        $obj_to_return = json_decode($result['body']);
+        $obj_to_return->cached = $result['cached'];
+        return $obj_to_return;
     }
 
     private function get($url,$params = array()) {
@@ -63,6 +136,49 @@ class SimpleFlickrPhotoApi {
                                                 'filename'    => null
                                        ));
         $params = apply_filters('fshow_wp_remote_get_args',$params);
-        return wp_remote_get( $url, $params );
+        $query_hash = md5($url.serialize($params));
+        if ( false === ( $result = get_transient( 'fshow_remote_'.$query_hash ) ) ) {
+            $result = wp_remote_get( $url, $params );
+            set_transient( 'fshow_remote_'.$query_hash, $result, $this->transient_cache_time );
+            $result['cached'] = false;
+        } else {
+            $result['cached'] = true;
+        }
+        return $result;
+    }
+
+
+    /* @url: https://www.flickr.com/groups/api/discuss/72157616713786392/ */
+    public static function base58_encode($num) {
+        $base_count = 58;
+        $alphabet = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+        $encoded = '';
+     
+        while ($num >= $base_count) {
+            $div = $num / $base_count;
+            $mod = $num % $base_count;
+            $encoded = $alphabet[$mod] . $encoded;
+            $num = intval($div);
+        }
+     
+        if ($num) {
+            $encoded = $alphabet[$num] . $encoded;
+        }
+     
+        return $encoded;
+    }
+     
+    public static function base58_decode($str) {
+        $alphabet = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+        $len = strlen($str);
+        $decoded = 0;
+        $multi = 1;
+     
+        for ($i = $len - 1; $i >= 0; $i--) {
+            $decoded += $multi * strpos($alphabet, $str{$i});
+            $multi = $multi * strlen($alphabet);
+        }
+     
+        return $decoded;
     }
 }

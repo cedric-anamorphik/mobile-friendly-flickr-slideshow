@@ -89,7 +89,7 @@ if ( ! defined( 'WPINC' ) ) {
 <a id="fullscreen_link" style="display: none;">
     <i class="fi-arrows-out"></i> <?php _e('Fullscreen','flickr_slideshow'); ?>
 </a>
-<div class="orbit-container">
+<div class="orbit-container" data-cache="<?php echo serialize($this->flickr->get_cache_stats()); ?>">
     <ul data-orbit>
       <?php foreach($this->get_photos() as $photo): ?>
         <li><img src="<?php get_site_url() . ''; ?>" data-src="<?php echo $photo['url']; ?>" data-page="<?php echo $photo['page_url']; ?>"></li>
@@ -114,17 +114,17 @@ if ( ! defined( 'WPINC' ) ) {
 <script>
 jQuery( document ).ready( function() {
     var zindex = -1;
-    lazyload = function(obj_li) {
+    function fshow_lazyload(obj_li) {
         if (!jQuery(obj_li).find('img').first().attr('src')) {
             var url = jQuery(obj_li).find('img').first().attr('data-src');
             var img = jQuery(obj_li).find('img').first();
-            img.css('z-index',zindex);
+            img.parent().css('z-index',zindex);
             img.attr('src', url );
             zindex--;
         }
         if (jQuery(obj_li).next()) {
             window.setTimeout( function() {
-                lazyload( jQuery(obj_li).next() );
+                fshow_lazyload( jQuery(obj_li).next() );
             }, 3000);
         }
     }
@@ -155,6 +155,9 @@ jQuery( document ).ready( function() {
         url = jQuery( orbit ).find('li.active img').attr('data-page');
         jQuery('#photo_link').attr('href',url);
     }
+    function fshow_hide_non_active( orbit ) {
+        jQuery( orbit ).find('li').not('.active').css('opacity',0);
+    }
     var orbit = jQuery('.orbit-container').foundation('orbit', {
             animation: 'fade',
             timer_speed: 4000,
@@ -169,9 +172,10 @@ jQuery( document ).ready( function() {
             variable_height: false
     });
     orbit.on("after-slide-change.fndtn.orbit", function(event) {
+        fshow_hide_non_active(this);
         fshow_update_image_link(this);
     });
-    lazyload( orbit.find('li.active').first() );
+    fshow_lazyload( orbit.find('li.active').first() );
     fshow_load_navigation( orbit );
     jQuery(document).on('mouseenter',function(e) {
         fsl = jQuery('#fullscreen_link');

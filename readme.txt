@@ -3,7 +3,7 @@ Contributors: robertpeake, robert@msia.org, robert.peake
 Tags: flickr, slideshow, mobile, responsive
 Requires at least: 3.0.0
 Tested up to: 4.2.2
-Stable tag: 2.2.1
+Stable tag: 2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,15 +13,13 @@ Embeds a respnsive slideshow of Flickr images from any album or photoset
 
 Embeds a respnsive slideshow of Flickr images from any album or photoset
 
-Shortcodes are of the format: `[fshow photosetid=72157627847553181]`
+Shortcodes are of the format: `[fshow=https://flic.kr/s/aHsiP3Xyxx]` or `[fshow photosetid=72157627847553181]`
 
-The default parameters for api key, username, and photosetid can have values set using the plugin options page that will then be used by default whenever they are omitted from the shortcode.
+The default parameters for api key, username, user_id and photosetid can have values set using the plugin options page that will then be used by default whenever they are omitted from the shortcode.
 
 == Installation ==
 
 Install as normal for WordPress plugins. Obtain an API key from Flickr to enable responsive mode.
-
-Shortcodes are of the format: [fshow photosetid=72157627847553181]
 
 == Frequently Asked Questions ==
 
@@ -31,11 +29,11 @@ You must first <a href="https://www.flickr.com/services/apps/create/apply">obtai
 
 = How do I embed a slideshow? =
 
-Shortcodes are of the format: <code>[fshow photosetid=72157627847553181]</code>
+Shortcodes are of the format: <code>[fshow photosetid=72157627847553181]</code> or <code>[fshow=https://flic.kr/s/aHsiP3Xyxx]</code>
 
 = Where do I find these variables? =
 
-As part of any gallery URL, you should see your username and photosetid.
+As part of any gallery URL, you should see your photosetid at the end. It is a number.
 
 = Are you affiliated with Flickr or Yahoo! in any way? =
 
@@ -51,6 +49,13 @@ The author provides no warranty as to the suitability to any purpose of this sof
 2. Settings page
 
 == Changelog ==
+
+= 2.3 =
+
+ * Supports using Flickr short urls in of the form [fshow=https://flic.kr/s/aHsiP3Xyxx]
+ * Implements transient caching of remote Flickr API calls (default 1 hour, configurable)
+ * Resolves issue with different-sized slideshow images overlapping
+ * Users Flickr Short URLs for gallery link
 
 = 2.2.1 =
 

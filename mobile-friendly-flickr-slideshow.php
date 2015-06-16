@@ -4,7 +4,7 @@ Plugin Name: Responsive Flickr Slideshow
 Plugin URI: http://wordpress.org/plugins/mobile-friendly-flickr-slideshow/
 Description: Use the <code>[fshow]</code> shorttag with <code>username=</code>, <code>photosetid=</code>, and <code>thumburl=</code> parameters to display a mobile-friendly Flickr slideshow
 Author: Robert Peake
-Version: 2.2.1
+Version: 2.3
 Author URI: http://www.msia.org/ 
 Text Domain: flickr_slideshow
 Domain Path: /languages/
@@ -18,7 +18,6 @@ class FlickrSlideshow {
     private $slideshow_url;
     private $photos = array();
     private $flickr;
-    private $users = array();
 
     public static function init() {
         if( !is_object(self::$instance) ) {
@@ -30,14 +29,15 @@ class FlickrSlideshow {
     }
 
     public function __construct() {
+        $api_key = get_option('fshow_flickr_api_key');
+        $cache_time = get_option('fshow_flickr_cache_time');
         require_once 'classes/simple_flickr_photo_api.php';
-        $this->flickr = new SimpleFlickrPhotoApi();
+        $this->flickr = new SimpleFlickrPhotoApi($api_key, $cache_time);
         if (!$uniqid = get_option('fshow_uniqid')) {
             $uniqid = uniqid();
             add_option('fshow_uniqid', $uniqid);
         }
         $this->slideshow_url = 'fshow_orbit_'.$uniqid;
-        $this->users = get_transient('fshow_users_'.$uniqid) ? get_transient('fshow_users_'.$uniqid) : array();
         add_action( 'plugins_loaded', array($this, 'load_textdomain' ));
         add_action( 'admin_menu', array($this, 'register_menu_page' ));
         add_action( 'admin_init', array($this, 'register_settings' ));
@@ -56,12 +56,14 @@ class FlickrSlideshow {
 
     public function url_handler() {
         if (false !== strstr($_SERVER['REQUEST_URI'], $this->slideshow_url)) {
-            $atts = shortcode_atts( array(
-                        'username' => get_option('fshow_default_username'),
-                        'user_id' => $this->get_user_id(get_option('fshow_default_username')),
-                        'photosetid' => get_option('fshow_default_photosetid'),
-                    ), $_GET );
-            $this->load_photos($this->string_filter($atts['user_id']),$this->string_filter($atts['photosetid']),$this->string_filter($atts['username']));
+            $atts = array_intersect_key($_GET, 
+                                        array_flip( array('username','user_id','photosetid'  ) ));
+            if (!isset($atts['photosetid'])) {
+                $atts['photosetid'] = get_option('fshow_default_photosetid');
+            }
+            $this->load_photos( $this->string_filter($atts['photosetid']),
+                                isset($atts['user_id']) ? $this->string_filter($atts['user_id']) : false,
+                                isset($atts['username']) ? $this->string_filter($atts['username']) : false );
             include 'orbit.php';
             exit;
         }
@@ -79,16 +81,18 @@ class FlickrSlideshow {
         return $gallery_url;
     }
 
-    private function load_photos($user_id, $photosetid, $username) {
-        if (strlen($user_id) > 3) {
+    private function load_photos($photosetid, $user_id = false, $username = false) {
+        if (!$user_id && !$username) {
+            $user_id = $this->flickr->get_user_id_from_photoset($photosetid);
+        }
+        if ($user_id) {
             $url_base = 'https://www.flickr.com/photos/'.$user_id;
-            $this->gallery_url = $url_base .'/sets/'.$photosetid;
             $photos = $this->flickr->get_photos($photosetid, $user_id);
-        } else {
+        } else { //assume $username is set
             $url_base = 'https://www.flickr.com/photos/'.$username;
-            $this->gallery_url = $url_base .'/sets/'.$photosetid;
             $photos = $this->flickr->get_photos($photosetid);
         }
+        $this->gallery_url = $this->flickr->get_short_url($photosetid);
         // https://farm{$photo->farm}.staticflickr.com/{$photo->server}/{$photo->id}_{$photo->secret}{$size_flag}.jpg
         $pattern = 'https://farm%s.staticflickr.com/%s/%s_%s%s.jpg';
         // /{$url_base}/{$photo->id}/in/album-{$photosetid}/
@@ -103,11 +107,15 @@ class FlickrSlideshow {
         }
     }
 
-    private function get_url($user_id,$photosetid,$username) {
-        $query = http_build_query( array( 
-                                 'username' => $username,
-                                 'user_id' => $user_id,
-                                 'photosetid' => $photosetid) );
+    private function get_url($photosetid,$user_id=false,$username=false) {
+        $query_array = array( 'photosetid' => $photosetid);
+        if ($user_id) {
+            $query_array['user_id'] = $user_id;
+        }
+        if ($username) {
+            $query_array['username'] = $username;
+        }
+        $query = http_build_query( $query_array );
         return get_site_url().'/'.$this->slideshow_url.'?'.$query;
     }
 
@@ -115,27 +123,48 @@ class FlickrSlideshow {
         if (strlen(get_option('fshow_flickr_api_key')) == 0) {
             return $this->fshow_legacy($atts);
         }
-        $atts = shortcode_atts( array(
-                    'username' => get_option('fshow_default_username'),
-                    'photosetid' => get_option('fshow_default_photosetid'),
-                    'thumburl' => get_option('fshow_default_thumburl'),
-                    'width' => get_option('fshow_default_width'),
-                    'height' => get_option('fshow_default_height'),
-                ), $atts, 'fshow' );
-        if (strlen($atts['width']) == 0) {
+        if (isset($atts[0]) && substr($atts[0],0,5) == '=http') {
+            $short_url = ltrim($atts[0],'=');
+            $new_atts = $this->flickr->get_url_parts_from_short_url( $short_url );
+            $atts = array_merge($atts, $new_atts);
+            unset($atts[0]);
+        } else if (isset($atts['url']) && substr($atts['url'],0,4) == 'http') {
+            $new_atts = $this->flickr->get_url_parts_from_short_url( $atts['url'] );
+            $atts = array_merge($atts, $new_atts);
+            unset($atts['url']);
+        } else {
+            $atts = shortcode_atts( array(
+                        'username' => get_option('fshow_default_username'),
+                        'user_id' => null,
+                        'photosetid' => get_option('fshow_default_photosetid'),
+                        'width' => get_option('fshow_default_width'),
+                        'height' => get_option('fshow_default_height'),
+                    ), $atts, 'fshow' );
+        }
+        if (!isset($atts['width']) || strlen($atts['width']) == 0) {
             $atts['width'] = 640;
         }
-        if (strlen($atts['height']) == 0) {
+        if (!isset($atts['height']) || strlen($atts['height']) == 0) {
             $atts['height'] = 400;
         }
-        $user_id = $this->get_user_id($atts['username']);
-        $galleryURL = 'http://www.flickr.com/photos/'.$atts['username'].'/sets/'.$atts['photosetid'].'/';
-        $simpleLink = sprintf('<a href="http://www.flickr.com/photos/%s/sets/%s/" target="_blank">'.__('Click to View','flickr_slideshow').'</a>',$atts['username'], $atts['photosetid'], $atts['thumburl']);
+        $user_id = false;
+        $username = false;
+        if (isset($atts['user_id']) && strlen($atts['user_id']) > 0) {
+            $user_id = $atts['user_id'];
+        } else if (isset($atts['username'])) {
+            $user_id = $this->flickr->get_user_id_from_username($atts['username']);
+        } else if (isset($atts['photosetid'])) {
+            $user_id = $this->flickr->get_user_id_from_photoset( $atts['photosetid'] );
+        }
+        if (isset($atts['username']) && strlen($atts['username']) > 0) {
+            $username = $atts['username'];
+        }
+        $simple_link = sprintf('<a href="%s" target="_blank">'.__('Click to View','flickr_slideshow').'</a>', $this->flickr->get_short_url($atts['photosetid']));
         $return = sprintf('<div style="max-width: %spx; height: %spx" class="fshow-wrapper">',$atts['width'],$atts['height'])."\n";
-        $return .= '<iframe src="'.$this->get_url($user_id,$atts['photosetid'],$atts['username']).'" style="width: 100%; height: '.$atts['height'].'px" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" border="0">'."\n";
+        $return .= '<iframe src="'.$this->get_url($atts['photosetid'],$user_id,$username).'" style="width: 100%; height: '.$atts['height'].'px" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" border="0">'."\n";
         $return .= '</iframe>'."\n";
         $return .= '<noframes>'."\n";
-        $return .= $simpleLink;
+        $return .= $simple_link;
         $return .= '</noframes>'."\n";
         $return .= '</div>'."\n";
         return $return;
@@ -189,16 +218,16 @@ class FlickrSlideshow {
 
     public function register_settings() {
         add_option('fshow_flickr_api_key','');
+        add_option('fshow_flickr_cache_time', '3600');
         add_option('fshow_default_username', 'photomatt');
-        add_option('fshow_default_user_id', '44124424984@N01');
         add_option('fshow_default_photosetid', '72157600645614333');
         add_option('fshow_default_thumburl', includes_url('images/wlw/wp-watermark.png'));
         add_option('fshow_default_width', '640');
         add_option('fshow_default_height', '400');
         add_option('fshow_performance_mode', 1);
         register_setting( 'flickr_slideshow', 'fshow_flickr_api_key', array($this, 'string_filter' ));
+        register_setting( 'flickr_slideshow', 'fshow_flickr_cache_time', 'intval');
         register_setting( 'flickr_slideshow', 'fshow_default_username', array($this,'string_filter' )); 
-        register_setting( 'flickr_slideshow', 'fshow_default_user_id', array($this,'string_filter' )); 
         register_setting( 'flickr_slideshow', 'fshow_default_photosetid', 'intval' ); 
         register_setting( 'flickr_slideshow', 'fshow_default_thumburl', array($this,'url_filter' )); 
         register_setting( 'flickr_slideshow', 'fshow_default_width', 'intval' ); 
@@ -214,25 +243,6 @@ class FlickrSlideshow {
         return filter_var($url, FILTER_SANITIZE_URL);
     }
 
-    private function get_user_id($username) {
-        if (isset($this->users[$username])) {
-            return $this->users[$username];
-        } else {
-            $user_id = $this->flickr->get_user_id_from_username($username);
-            if(strlen($user_id) > 0) {
-                $this->users[$username] = $user_id;
-                $this->save_users();
-                return $user_id;
-            } else {
-                return false;
-            }
-        }
-    }
-
-    private function save_users() {
-        $uniqid = get_option('fshow_uniqid');
-        set_transient('fshow_users_'.$uniqid, $this->users);
-    }
 
 }
 $flickr_slideshow = FlickrSlideshow::init();
