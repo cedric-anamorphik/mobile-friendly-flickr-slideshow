@@ -91,8 +91,17 @@ if ( ! defined( 'WPINC' ) ) {
 </a>
 <div class="orbit-container" data-cache="<?php echo serialize($this->flickr->get_cache_stats()); ?>">
     <ul data-orbit>
+      <?php $zindex = 0; ?>
       <?php foreach($this->get_photos() as $photo): ?>
-        <li><img src="<?php get_site_url() . ''; ?>" data-src="<?php echo $photo['url']; ?>" data-page="<?php echo $photo['page_url']; ?>"></li>
+        <?php if ($zindex === 0): ?>
+            <li style="z-index: <?php echo --$zindex; ?>">
+                <img src="<?php echo $photo['url']; ?>" data-page="<?php echo $photo['page_url']; ?>">
+            </li>
+        <?php else: ?>
+            <li style="z-index: <?php echo --$zindex; ?>">
+                <img src="<?php echo plugin_dir_url( __FILE__ ) . '/images/spinner.gif'; ?>" data-src="<?php echo $photo['url']; ?>" data-page="<?php echo $photo['page_url']; ?>">
+            </li>
+        <?php endif; ?>
       <?php endforeach; ?>
     </ul>
 </div>
@@ -113,19 +122,16 @@ if ( ! defined( 'WPINC' ) ) {
 </script>
 <script>
 jQuery( document ).ready( function() {
-    var zindex = -1;
     function fshow_lazyload(obj_li) {
-        if (!jQuery(obj_li).find('img').first().attr('src')) {
+        if (jQuery(obj_li).find('img').first().attr('data-src') && jQuery(obj_li).find('img').first().attr('src') != jQuery(obj_li).find('img').first().attr('data-src')) {
             var url = jQuery(obj_li).find('img').first().attr('data-src');
             var img = jQuery(obj_li).find('img').first();
-            img.parent().css('z-index',zindex);
             img.attr('src', url );
-            zindex--;
         }
         if (jQuery(obj_li).next()) {
             window.setTimeout( function() {
                 fshow_lazyload( jQuery(obj_li).next() );
-            }, 3000);
+            }, 500);
         }
     }
     function fshow_load_navigation( orbit ) {
