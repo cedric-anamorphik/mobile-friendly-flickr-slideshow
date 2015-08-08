@@ -33,7 +33,7 @@ echo settings_fields( 'flickr_slideshow' );
         </td>
 	</tr>
 	<tr valign="top">
-            <th scope="row"><label for="id_fshow_default_width"><?php _e('Default Slideshow Width','flickr_slideshow'); ?>:</label></th>
+            <th scope="row"><label for="id_fshow_default_width"><?php _e('Default Maximum Slideshow Width','flickr_slideshow'); ?>:</label></th>
 	    <td><input type="text" id="id_fshow_default_width" name="fshow_default_width" value="<?php echo get_option('fshow_default_width'); ?>" />px</td>
 	</tr>
 	<tr valign="top">
